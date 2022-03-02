@@ -100,6 +100,8 @@ app.post('/create', (req,res)=> {
 app.post('/createplant', (req,res)=> {
     const plantname = req.body.plantname;
     const stage = req.body.stage;
+    const opentime = req.body.opentime;
+    const closetime = req.body.closetime;
     const openclosetime = req.body.openclosetime;
     const lowertemp = req.body.lowertemp;
     const highertemp = req.body.highertemp;
@@ -110,8 +112,8 @@ app.post('/createplant', (req,res)=> {
     console.log("create plant", req.session)
     const username = req.session.users.username;
 
-    db.query("INSERT INTO plants(username,plantname,stage,openclosetime,lowertemp,highertemp,lowerhumid,higherhumid,lowerpH,higherpH) VALUES(?,?,?,?,?,?,?,?,?,?)", 
-    [username,plantname,stage,openclosetime,lowertemp,highertemp,lowerhumid,higherhumid,lowerpH,higherpH],
+    db.query("INSERT INTO plants(username,plantname,stage,opentime,closetime,openclosetime,lowertemp,highertemp,lowerhumid,higherhumid,lowerpH,higherpH) VALUES(?,?,?,?,?,?,?,?,?,?,?,?)", 
+    [username,plantname,stage,opentime,closetime,openclosetime,lowertemp,highertemp,lowerhumid,higherhumid,lowerpH,higherpH],
     (err,result) => {
         if(err){
             console.log(err);
