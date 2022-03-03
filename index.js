@@ -100,9 +100,9 @@ app.post('/create', (req,res)=> {
 app.post('/createplant', (req,res)=> {
     const plantname = req.body.plantname;
     const stage = req.body.stage;
-    const opentime = req.body.opentime;
-    const closetime = req.body.closetime;
-    const openclosetime = req.body.openclosetime;
+    const inputtime = req.body.inputtime;
+    //const opentime = req.body.opentime;
+    //const closetime = req.body.closetime;
     const lowertemp = req.body.lowertemp;
     const highertemp = req.body.highertemp;
     const lowerhumid = req.body.lowerhumid;
@@ -111,9 +111,9 @@ app.post('/createplant', (req,res)=> {
     const higherpH = req.body.higherpH;
     console.log("create plant", req.session)
     const username = req.session.users.username;
-
-    db.query("INSERT INTO plants(username,plantname,stage,opentime,closetime,openclosetime,lowertemp,highertemp,lowerhumid,higherhumid,lowerpH,higherpH) VALUES(?,?,?,?,?,?,?,?,?,?,?,?)", 
-    [username,plantname,stage,opentime,closetime,openclosetime,lowertemp,highertemp,lowerhumid,higherhumid,lowerpH,higherpH],
+    const ar = [];
+    db.query("INSERT INTO plants(username,plantname,stage,lowertemp,highertemp,lowerhumid,higherhumid,lowerpH,higherpH) VALUES(?,?,?,?,?,?,?,?,?)", 
+    [username,plantname,stage,lowertemp,highertemp,lowerhumid,higherhumid,lowerpH,higherpH],
     (err,result) => {
         if(err){
             console.log(err);
@@ -122,6 +122,31 @@ app.post('/createplant', (req,res)=> {
         }
     }
     );
+
+    //for (let index = 0; index < inputtime.length; index++) {
+    //    const ar = [];
+    //    ar.push(inputtime[index])
+    //    db.query("INSERT INTO time(username,plantname,opentime,closetime) VALUES(?,?,?,?)", 
+    //    [username,plantname,ar.map(ar=>[ar.opentime]),ar.map(ar=>[ar.closetime])],
+    //    (err,result) => {
+    //    if(err){
+    //        console.log(err);
+    //    } else {
+    //        return res.send("Values inserted");
+    //    }
+    //}
+    //);}
+
+    //db.query("INSERT INTO plants(opentime,closetime) VALUES?",
+    //[inputtime.map(inputtime=>[inputtime.opentime,inputtime.closetime])],
+    //(err,result) => {
+    //    if(err){
+    //        console.log(err);
+    //    } else {
+    //        return res.send("Values inserted");
+    //    }
+    //}
+    //);
 })
 
 app.get("/login",(req,res)=>{
