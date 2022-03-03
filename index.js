@@ -123,19 +123,17 @@ app.post('/createplant', (req,res)=> {
     }
     );
 
-    //for (let index = 0; index < inputtime.length; index++) {
-    //    const ar = [];
-    //    ar.push(inputtime[index])
-    //    db.query("INSERT INTO time(username,plantname,opentime,closetime) VALUES(?,?,?,?)", 
-    //    [username,plantname,ar.map(ar=>[ar.opentime]),ar.map(ar=>[ar.closetime])],
-    //    (err,result) => {
-    //    if(err){
-    //        console.log(err);
-    //    } else {
-    //        return res.send("Values inserted");
-    //    }
-    //}
-    //);}
+    for (let index = 0; index < inputtime.length; index++) {
+        const ar = [];
+        ar.push(inputtime[index])
+        db.query("INSERT INTO time(username,plantname,opentime,closetime) VALUES(?,?,?,?)", 
+        [username,plantname,ar.map(ar=>[ar.opentime]),ar.map(ar=>[ar.closetime])],
+        (err,result) => {
+        if(err){
+            console.log(err);
+        } 
+    }
+    );}
 
     //db.query("INSERT INTO plants(opentime,closetime) VALUES?",
     //[inputtime.map(inputtime=>[inputtime.opentime,inputtime.closetime])],
