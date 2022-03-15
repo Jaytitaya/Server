@@ -67,11 +67,11 @@ app.get('/plants', (req,res)=>{
     });
 });
 
-app.get('/plantname', (req,res)=>{
+app.post('/stage', (req,res)=>{
     console.log("session", req.session.users)
     const username = req.session.users.username;
-    const names = req.body.names;
-    db.query("SELECT * FROM plants WHERE username = ? AND names = ?",[username,names], (err,result) => {
+    const stage = req.body.stage;
+    db.query("SELECT * FROM plants WHERE username = ? AND stage = ?",[username,stage], (err,result) => {
         if(err){
             console.log(err);
         } else {
