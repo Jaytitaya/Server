@@ -56,7 +56,21 @@ app.get('/plants', (req,res)=>{
         if(err){
             console.log(err);
         } else {
-            console.log(result[0].plantname);
+            //console.log(result);
+            return res.send(result);
+        }
+    });
+});
+
+app.get('/plantname', (req,res)=>{
+    console.log("session", req.session.users)
+    const username = req.session.users.username;
+    const names = req.body.names;
+    db.query("SELECT * FROM plants WHERE username = ? AND names = ?",[username,names], (err,result) => {
+        if(err){
+            console.log(err);
+        } else {
+            //console.log(result);
             return res.send(result);
         }
     });
