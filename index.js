@@ -51,12 +51,17 @@ app.get('/users', (req,res)=>{
 app.get('/plants', (req,res)=>{
     console.log("session", req.session.users)
     const username = req.session.users.username;
-    
+    const plant = []
     db.query("SELECT * FROM plants WHERE username = ?",[username], (err,result) => {
         if(err){
             console.log(err);
         } else {
-            //console.log(result);
+            console.log(result);
+            //for (let index = 0; index < result.length; index++) {
+            //    plant.push(result[index].plantname)
+            //}
+            //let unique = [...new Set(plant)]
+            //console.log(unique);
             return res.send(result);
         }
     });
