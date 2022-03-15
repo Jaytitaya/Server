@@ -56,6 +56,7 @@ app.get('/plants', (req,res)=>{
         if(err){
             console.log(err);
         } else {
+            console.log(result[0].plantname);
             return res.send(result);
         }
     });
