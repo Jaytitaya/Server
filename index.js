@@ -10,7 +10,7 @@ const session = require("express-session");
 
 app.use(cors({
     origin: ["http://localhost:3000"],
-    methods: ["GET","POST"],
+    methods: ["GET","POST","DELETE"],
     credentials: true
 }));
 app.use(cookieParser());
@@ -47,6 +47,29 @@ app.get('/users', (req,res)=>{
         }
     });
 });
+let plantlist = [];
+app.get('/plantlist', (req,res)=>{
+    db.query("SELECT * FROM plants", (err,result) => {
+        if(err){
+            console.log(err);
+        } else {
+            plantlist = result;
+            return res.send(plantlist);
+        }
+    });
+});
+
+app.delete('/plantlist/:id', (req, res) => {
+    const { id } = req.params.id;
+    
+    const deleted = plantlist.find(p => p.id == id);
+    if(deleted){
+        plantlist = plantlist.filter(p => p.id != id);
+    }
+    //plantlist.splice(deleted, 1);
+   
+    return res.send();
+   });
 
 app.get('/plants', (req,res)=>{
     console.log("session", req.session.users)
