@@ -16,6 +16,7 @@ app.use(cors({
 app.use(cookieParser());
 app.use(bodyParser.urlencoded({extended: true}));
 app.use(express.json());
+app.use( require('request-param')({ order: ["body","params","query"] } ) );
 
 app.use(
     session({
@@ -62,13 +63,15 @@ app.get('/plantlist', (req,res)=>{
 app.delete('/plantlist/:id', (req, res) => {
     const { id } = req.params.id;
     
-    const deleted = plantlist.find(p => p.id == id);
+    const deleted = plantlist.findIndex(p => p.id == id);
     if(deleted){
-        plantlist = plantlist.filter(p => p.id != id);
+        console.log(id);
+        //plantlist = plantlist.filter(p => p.id !== id);
+        //plantlist.deleteByID(id);
+        plantlist.splice(deleted, 1);
     }
-    //plantlist.splice(deleted, 1);
-   
     return res.send();
+    //res.redirect('/myplant');
    });
 
 app.get('/plants', (req,res)=>{
