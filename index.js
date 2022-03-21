@@ -10,7 +10,7 @@ const session = require("express-session");
 
 app.use(cors({
     origin: ["http://localhost:3000"],
-    methods: ["GET","POST","DELETE"],
+    methods: ["GET","POST","DELETE","PUT"],
     credentials: true
 }));
 app.use(cookieParser());
@@ -71,7 +71,11 @@ app.delete('/delete/:id', (req, res) => {
         }
     })
     
-   });
+});
+
+app.put('/update',(req, res)=>{
+
+});
 
 app.get('/plants', (req,res)=>{
     console.log("session", req.session.users)
@@ -154,11 +158,12 @@ app.post('/createplant', (req,res)=> {
     const higherhumid = req.body.higherhumid;
     const lowerpH = req.body.lowerpH;
     const higherpH = req.body.higherpH;
+    const selectstage = req.body.selectstage;
     console.log("create plant", req.session)
     const username = req.session.users.username;
     const ar = [];
-    db.query("INSERT INTO plants(username,plantname,stage,opentime,closetime,lowertemp,highertemp,lowerhumid,higherhumid,lowerpH,higherpH) VALUES(?,?,?,?,?,?,?,?,?,?,?)", 
-    [username,plantname,stage,opentime,closetime,lowertemp,highertemp,lowerhumid,higherhumid,lowerpH,higherpH],
+    db.query("INSERT INTO plants(username,plantname,stage,opentime,closetime,lowertemp,highertemp,lowerhumid,higherhumid,lowerpH,higherpH,selectstage) VALUES(?,?,?,?,?,?,?,?,?,?,?,?)", 
+    [username,plantname,stage,opentime,closetime,lowertemp,highertemp,lowerhumid,higherhumid,lowerpH,higherpH,selectstage],
     (err,result) => {
         if(err){
             console.log(err);
