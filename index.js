@@ -60,18 +60,17 @@ app.get('/plantlist', (req,res)=>{
     });
 });
 
-app.delete('/plantlist/:id', (req, res) => {
-    const { id } = req.params.id;
+app.delete('/delete/:id', (req, res) => {
+    const id  = req.params.id;
+    console.log(id);
+    db.query("DELETE FROM plants WHERE id = ?",[id],(err,result)=>{
+        if(err){
+            console.log(err)
+        } else{
+            res.send(result);
+        }
+    })
     
-    const deleted = plantlist.findIndex(p => p.id == id);
-    if(deleted){
-        console.log(id);
-        //plantlist = plantlist.filter(p => p.id !== id);
-        //plantlist.deleteByID(id);
-        plantlist.splice(deleted, 1);
-    }
-    return res.send();
-    //res.redirect('/myplant');
    });
 
 app.get('/plants', (req,res)=>{
