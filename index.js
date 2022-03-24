@@ -74,7 +74,15 @@ app.delete('/delete/:id', (req, res) => {
 });
 
 app.put('/update',(req, res)=>{
-
+    const id = req.body.id;
+    const plantname = req.body.plantname;
+    db.query("UPDATE plants SET plantname=? WHERE id=?",[plantname,id],(err,result)=>{
+        if(err){
+            console.log(err)
+        } else{
+            res.send(result);
+        }
+    })
 });
 
 app.get('/plants', (req,res)=>{
