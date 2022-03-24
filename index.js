@@ -76,7 +76,18 @@ app.delete('/delete/:id', (req, res) => {
 app.put('/update',(req, res)=>{
     const id = req.body.id;
     const plantname = req.body.plantname;
-    db.query("UPDATE plants SET plantname=? WHERE id=?",[plantname,id],(err,result)=>{
+    const stage = req.body.stage;
+    const opentime = req.body.opentime;
+    const closetime = req.body.closetime;
+    const lowertemp = req.body.lowertemp;
+    const highertemp = req.body.highertemp;
+    const lowerhumid = req.body.lowerhumid;
+    const higherhumid = req.body.higherhumid;
+    const lowerpH = req.body.lowerpH;
+    const higherpH = req.body.higherpH;
+    const selectstage = req.body.selectstage;
+    db.query("UPDATE plants SET plantname=?,stage=?,opentime=?,closetime=?,lowertemp=?,highertemp=?,lowerhumid=?,higherhumid=?,lowerpH=?,higherpH=?,selectstage=?  WHERE id=?",
+    [plantname,stage,opentime,closetime,lowertemp,highertemp,lowerhumid,higherhumid,lowerpH,higherpH,selectstage,id],(err,result)=>{
         if(err){
             console.log(err)
         } else{
