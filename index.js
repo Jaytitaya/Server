@@ -116,6 +116,20 @@ app.get('/plants', (req,res)=>{
     });
 });
 
+app.post('/plantid', (req,res)=>{
+    
+    const username = req.session.users.username;
+    const id = req.body.id;
+    db.query("SELECT * FROM plants WHERE username = ? AND id = ?",[username,id], (err,result) => {
+        if(err){
+            console.log(err);
+        } else {
+            //console.log(result);
+            return res.send(result);
+        }
+    });
+});
+
 app.post('/stage', (req,res)=>{
     console.log("session", req.session.users)
     const username = req.session.users.username;
