@@ -164,7 +164,7 @@ app.post('/create', (req,res)=> {
         } else {
             return res.send({message:"Register Successfully!"});
         }
-    }
+        }
 )};
 })
 
@@ -196,16 +196,26 @@ app.post('/createplant', (req,res)=> {
     console.log("create plant", req.session)
     const username = req.session.users.username;
     const ar = [];
-    db.query("INSERT INTO plants(username,plantname,stage,opentime,closetime,lowertemp,highertemp,lowerhumid,higherhumid,lowerpH,higherpH,selectstage) VALUES(?,?,?,?,?,?,?,?,?,?,?,?)", 
-    [username,plantname,stage,opentime,closetime,lowertemp,highertemp,lowerhumid,higherhumid,lowerpH,higherpH,selectstage],
-    (err,result) => {
+
+    db.query("SELECT * FROM plants WHERE username =? AND plantname=? AND stage=?",[username,plantname,stage],(err,result)=>{
         if(err){
             console.log(err);
-        } else {
-            return res.send("Values inserted");
         }
-    }
+        if(result.length>0){
+            return res.send({message:"!This plant already has this stage"});
+        }else{
+        db.query("INSERT INTO plants(username,plantname,stage,opentime,closetime,lowertemp,highertemp,lowerhumid,higherhumid,lowerpH,higherpH,selectstage) VALUES(?,?,?,?,?,?,?,?,?,?,?,?)", 
+        [username,plantname,stage,opentime,closetime,lowertemp,highertemp,lowerhumid,higherhumid,lowerpH,higherpH,selectstage],
+        (err,result) => {
+            if(err){
+                console.log(err);
+            } else {
+            return res.send("Values inserted");
+            }
+        }
     );
+    }
+    });  
 
     //for (let index = 0; index < inputtime.length; index++) {
     //    const ar = [];
