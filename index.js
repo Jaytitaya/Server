@@ -86,13 +86,13 @@ app.put('/update',(req, res)=>{
     const lowerpH = req.body.lowerpH;
     const higherpH = req.body.higherpH;
     const selectstage = req.body.selectstage;
-    db.query("UPDATE plants SET plantname=?,stage=?,opentime=?,closetime=?,lowertemp=?,highertemp=?,lowerhumid=?,higherhumid=?,lowerpH=?,higherpH=?,selectstage=?  WHERE id=?",
-    [plantname,stage,opentime,closetime,lowertemp,highertemp,lowerhumid,higherhumid,lowerpH,higherpH,selectstage,id],(err,result)=>{
+    console.log(opentime,closetime,lowertemp,highertemp,lowerhumid,higherhumid,lowerpH,higherpH,selectstage);
+    db.query("UPDATE plants SET opentime=?,closetime=?,lowertemp=?,highertemp=?,lowerhumid=?,higherhumid=?,lowerpH=?,higherpH=?,selectstage=?  WHERE id=?",
+    [opentime,closetime,lowertemp,highertemp,lowerhumid,higherhumid,lowerpH,higherpH,selectstage,id],(err,result)=>{
         if(err){
             console.log(err)
         } else{
             res.send(result);
-            console.log(result);
         }
     })
 });
