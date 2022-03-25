@@ -202,7 +202,7 @@ app.post('/createplant', (req,res)=> {
             console.log(err);
         }
         if(result.length>0){
-            return res.send({message:"!This plant already has this stage"});
+            return res.send({message:"!This plant already has this stage recorded"});
         }else{
         db.query("INSERT INTO plants(username,plantname,stage,opentime,closetime,lowertemp,highertemp,lowerhumid,higherhumid,lowerpH,higherpH,selectstage) VALUES(?,?,?,?,?,?,?,?,?,?,?,?)", 
         [username,plantname,stage,opentime,closetime,lowertemp,highertemp,lowerhumid,higherhumid,lowerpH,higherpH,selectstage],
