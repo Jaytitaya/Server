@@ -130,7 +130,7 @@ app.post('/plantid', (req,res)=>{
     });
 });
 
-app.post('/stage', (req,res)=>{
+app.post('/plantname', (req,res)=>{
     console.log("session", req.session.users)
     const username = req.session.users.username;
     const plantname = req.body.plantname;
