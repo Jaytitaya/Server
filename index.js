@@ -86,7 +86,7 @@ app.put('/update',(req, res)=>{
     const lowerpH = req.body.lowerpH;
     const higherpH = req.body.higherpH;
     const selectstage = req.body.selectstage;
-    console.log(opentime,closetime,lowertemp,highertemp,lowerhumid,higherhumid,lowerpH,higherpH,selectstage);
+    //console.log(opentime,closetime,lowertemp,highertemp,lowerhumid,higherhumid,lowerpH,higherpH,selectstage);
     db.query("UPDATE plants SET opentime=?,closetime=?,lowertemp=?,highertemp=?,lowerhumid=?,higherhumid=?,lowerpH=?,higherpH=?,selectstage=?  WHERE id=?",
     [opentime,closetime,lowertemp,highertemp,lowerhumid,higherhumid,lowerpH,higherpH,selectstage,id],(err,result)=>{
         if(err){
@@ -106,12 +106,12 @@ app.get('/plants', (req,res)=>{
             console.log(err);
         } else {
             console.log(result);
-            //for (let index = 0; index < result.length; index++) {
-            //    plant.push(result[index].plantname)
-            //}
-            //let unique = [...new Set(plant)]
-            //console.log(unique);
-            return res.send(result);
+            for (let index = 0; index < result.length; index++) {
+                plant.push(result[index].plantname)
+            }
+            let unique = [...new Set(plant)]
+            console.log(unique);
+            return res.send(unique);
         }
     });
 });
