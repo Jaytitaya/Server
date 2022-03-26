@@ -133,8 +133,8 @@ app.post('/plantid', (req,res)=>{
 app.post('/stage', (req,res)=>{
     console.log("session", req.session.users)
     const username = req.session.users.username;
-    const stage = req.body.stage;
-    db.query("SELECT * FROM plants WHERE username = ? AND stage = ?",[username,stage], (err,result) => {
+    const plantname = req.body.plantname;
+    db.query("SELECT * FROM plants WHERE username = ? AND plantname = ?",[username,plantname], (err,result) => {
         if(err){
             console.log(err);
         } else {
