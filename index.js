@@ -36,7 +36,7 @@ const db = mysql.createConnection({
     user: "smartfarm",
     host:"localhost",
     password: "Smartfarm12345",
-    database: "userSystem"
+    database: "smartfarm"
 })
 
 app.get('/users', (req,res)=>{
@@ -48,6 +48,180 @@ app.get('/users', (req,res)=>{
         }
     });
 });
+
+app.post('/plantregister', (req,res)=> {
+    const plantname = req.body.plantname;
+    const plantnameEng = req.body.plantnameEng;
+    const lifecycle = req.body.lifecycle;
+    const utilization = req.body.utilization;
+    const username = req.session.users.username;
+
+    db.query("SELECT * FROM plants WHERE username =? AND plants_name=?",[username,plantname],(err,result)=>{
+        if(err){
+            console.log(err);
+        }
+        if(result.length>0){
+            return res.send({message:"This plant was already recorded!"});
+        }else{
+        db.query("INSERT INTO plants(username,plants_name,plants_engname,plants_lifecycle,plants_utilization) VALUES(?,?,?,?,?)", 
+        [username,plantname,plantnameEng,lifecycle,utilization],
+        (err,result) => {
+            if(err){
+                console.log(err);
+            } else {
+            return res.send("Values inserted");
+            }
+        }
+    );
+    }
+    });  
+})
+
+app.get('/plantname', (req,res)=>{
+    const username = req.session.users.username;
+    const plant = []
+    db.query("SELECT * FROM plants WHERE username = ?",[username], (err,result) => {
+        if(err){
+            console.log(err);
+        } else {
+            console.log(result);
+            for (let index = 0; index < result.length; index++) {
+                plant.push(result[index].plants_name)
+            }
+            console.log(plant);
+            return res.send(plant);
+        }
+    });
+});
+
+app.post('/plantparameter', (req,res)=> {
+    const plantname = req.body.plantname;
+    const stage = req.body.stage;
+    const opentime = req.body.opentime;
+    const closetime = req.body.closetime;
+    const lowertemp = req.body.lowertemp;
+    const highertemp = req.body.highertemp;
+    const lowerhumid = req.body.lowerhumid;
+    const higherhumid = req.body.higherhumid;
+    const lowerpH = req.body.lowerpH;
+    const higherpH = req.body.higherpH;
+    console.log("create plant", req.session)
+    const username = req.session.users.username;
+    const ar = [];
+
+    db.query("SELECT * FROM plants_parameters WHERE username =? AND plantname=? AND stage=?",[username,plantname,stage],(err,result)=>{
+        if(err){
+            console.log(err);
+        }
+        if(result.length>0){
+            return res.send({message:"!This plant already has this stage recorded"});
+        }else{
+        db.query("INSERT INTO plants_parameters(username,plantname,stage,opentime,closetime,lowertemp,highertemp,lowerhumid,higherhumid,lowerpH,higherpH) VALUES(?,?,?,?,?,?,?,?,?,?,?)", 
+        [username,plantname,stage,opentime,closetime,lowertemp,highertemp,lowerhumid,higherhumid,lowerpH,higherpH],
+        (err,result) => {
+            if(err){
+                console.log(err);
+            } else {
+            return res.send("Values inserted");
+            }
+        }
+    );
+    }
+    });  
+})
+
+app.post('/farmregister', (req,res)=> {
+    const farmname = req.body.farmname;
+    const plantname = req.body.plantname;
+    const location = req.body.location;
+    const plantamount = req.body.plantamount;
+    const stage = req.body.stage;
+    const username = req.session.users.username;
+
+    db.query("SELECT * FROM farm WHERE username =? AND farm_name=?",[username,farmname],(err,result)=>{
+        if(err){
+            console.log(err);
+        }
+        if(result.length>0){
+            return res.send({message:"This farm was already recorded!"});
+        }else{
+        db.query("INSERT INTO farm(username,farm_name,farm_location,plant_amount,farm_plant,farm_stage) VALUES(?,?,?,?,?,?)", 
+        [username,farmname,location,plantamount,plantname,stage],
+        (err,result) => {
+            if(err){
+                console.log(err);
+            } else {
+            return res.send("Values inserted");
+            }
+        }
+    );
+    }
+    });  
+})
+
+app.post('/showparameter', (req,res)=>{
+    console.log("session", req.session.users)
+    const username = req.session.users.username;
+    const plantname = req.body.plantname;
+    db.query("SELECT * FROM plants_parameters WHERE username = ? AND plantname = ?",[username,plantname], (err,result) => {
+        if(err){
+            console.log(err);
+        } else {
+            //console.log(result);
+            return res.send(result);
+        }
+    });
+});
+
+app.put('/updateparameter',(req, res)=>{
+    const id = req.body.id;
+    const plantname = req.body.plantname;
+    //const stage = req.body.stage;
+    const opentime = req.body.opentime;
+    const closetime = req.body.closetime;
+    const lowertemp = req.body.lowertemp;
+    const highertemp = req.body.highertemp;
+    const lowerhumid = req.body.lowerhumid;
+    const higherhumid = req.body.higherhumid;
+    const lowerpH = req.body.lowerpH;
+    const higherpH = req.body.higherpH;
+    //const selectstage = req.body.selectstage;
+    //console.log(opentime,closetime,lowertemp,highertemp,lowerhumid,higherhumid,lowerpH,higherpH,selectstage);
+    db.query("UPDATE plants_parameters SET opentime=?,closetime=?,lowertemp=?,highertemp=?,lowerhumid=?,higherhumid=?,lowerpH=?,higherpH=?  WHERE id=?",
+    [opentime,closetime,lowertemp,highertemp,lowerhumid,higherhumid,lowerpH,higherpH,id],(err,result)=>{
+        if(err){
+            console.log(err)
+        } else{
+            res.send(result);
+        }
+    })
+});
+
+app.delete('/deleteparameter/:id', (req, res) => {
+    const id  = req.params.id;
+    console.log(id);
+    db.query("DELETE FROM plants_parameters WHERE id = ?",[id],(err,result)=>{
+        if(err){
+            console.log(err)
+        } else{
+            res.send(result);
+        }
+    })
+    
+});
+
+
+
+
+
+
+
+
+
+
+
+//ของเก่า
+
 let plantlist = [];
 app.get('/plantlist', (req,res)=>{
     db.query("SELECT * FROM plants", (err,result) => {
@@ -130,19 +304,7 @@ app.post('/plantid', (req,res)=>{
     });
 });
 
-app.post('/plantname', (req,res)=>{
-    console.log("session", req.session.users)
-    const username = req.session.users.username;
-    const plantname = req.body.plantname;
-    db.query("SELECT * FROM plants WHERE username = ? AND plantname = ?",[username,plantname], (err,result) => {
-        if(err){
-            console.log(err);
-        } else {
-            //console.log(result);
-            return res.send(result);
-        }
-    });
-});
+
 
 app.post('/create', (req,res)=> {
     const firstname = req.body.firstname;
