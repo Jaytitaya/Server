@@ -210,6 +210,26 @@ app.delete('/deleteparameter/:id', (req, res) => {
     
 });
 
+app.post('/showplant', (req,res)=>{
+    console.log("session", req.session.users)
+    const username = req.session.users.username;
+    const plantname = req.body.plantname;
+    db.query("SELECT * FROM plants WHERE username = ? AND plants_name = ?",[username,plantname], (err,result) => {
+        if(err){
+            console.log(err);
+        } else {
+            console.log(result);
+            return res.send(result);
+
+        }
+    });
+});
+
+
+
+
+
+
 
 
 
