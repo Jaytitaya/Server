@@ -349,43 +349,6 @@ app.get('/plantlist', (req,res)=>{
     });
 });
 
-app.delete('/delete/:id', (req, res) => {
-    const id  = req.params.id;
-    console.log(id);
-    db.query("DELETE FROM plants WHERE id = ?",[id],(err,result)=>{
-        if(err){
-            console.log(err)
-        } else{
-            res.send(result);
-        }
-    })
-    
-});
-
-app.put('/update',(req, res)=>{
-    const id = req.body.id;
-    const plantname = req.body.plantname;
-    const stage = req.body.stage;
-    const opentime = req.body.opentime;
-    const closetime = req.body.closetime;
-    const lowertemp = req.body.lowertemp;
-    const highertemp = req.body.highertemp;
-    const lowerhumid = req.body.lowerhumid;
-    const higherhumid = req.body.higherhumid;
-    const lowerpH = req.body.lowerpH;
-    const higherpH = req.body.higherpH;
-    const selectstage = req.body.selectstage;
-    //console.log(opentime,closetime,lowertemp,highertemp,lowerhumid,higherhumid,lowerpH,higherpH,selectstage);
-    db.query("UPDATE plants SET opentime=?,closetime=?,lowertemp=?,highertemp=?,lowerhumid=?,higherhumid=?,lowerpH=?,higherpH=?,selectstage=?  WHERE id=?",
-    [opentime,closetime,lowertemp,highertemp,lowerhumid,higherhumid,lowerpH,higherpH,selectstage,id],(err,result)=>{
-        if(err){
-            console.log(err)
-        } else{
-            res.send(result);
-        }
-    })
-});
-
 app.get('/plants', (req,res)=>{
     console.log("session", req.session.users)
     const username = req.session.users.username;
@@ -401,20 +364,6 @@ app.get('/plants', (req,res)=>{
             let unique = [...new Set(plant)]
             console.log(unique);
             return res.send(unique);
-        }
-    });
-});
-
-app.post('/plantid', (req,res)=>{
-    
-    const username = req.session.users.username;
-    const id = req.body.id;
-    db.query("SELECT * FROM plants WHERE username = ? AND id = ?",[username,id], (err,result) => {
-        if(err){
-            console.log(err);
-        } else {
-            //console.log(result);
-            return res.send(result);
         }
     });
 });
