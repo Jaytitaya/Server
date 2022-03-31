@@ -225,6 +225,84 @@ app.post('/showplant', (req,res)=>{
     });
 });
 
+app.put('/updateplant',(req, res)=>{
+    const id = req.body.id;
+    const plantname = req.body.plantname;
+    //const stage = req.body.stage;
+    const plantnameEng = req.body.plantnameEng;
+    const lifecycle = req.body.lifecycle;
+    const utilization = req.body.utilization;
+    //const selectstage = req.body.selectstage;
+    //console.log(opentime,closetime,lowertemp,highertemp,lowerhumid,higherhumid,lowerpH,higherpH,selectstage);
+    db.query("UPDATE plants SET plants_engname=?,plants_lifecycle=?,plants_utilization=?  WHERE id=?",
+    [plantnameEng,lifecycle,utilization,id],(err,result)=>{
+        if(err){
+            console.log(err)
+        } else{
+            res.send(result);
+        }
+    })
+});
+
+app.delete('/deleteplant/:id', (req, res) => {
+    const id  = req.params.id;
+    console.log(id);
+    db.query("DELETE FROM plants WHERE id = ?",[id],(err,result)=>{
+        if(err){
+            console.log(err)
+        } else{
+            res.send(result);
+        }
+    })
+    
+});
+
+app.post('/showfarm', (req,res)=>{
+    console.log("session", req.session.users)
+    const username = req.session.users.username;
+    const plantname = req.body.plantname;
+    db.query("SELECT * FROM farm WHERE username = ? AND farm_plant = ?",[username,plantname], (err,result) => {
+        if(err){
+            console.log(err);
+        } else {
+            console.log(result);
+            return res.send(result);
+
+        }
+    });
+});
+
+app.put('/updatefarm',(req, res)=>{
+    const id = req.body.id;
+    const farmname = req.body.farmname;
+    const location = req.body.location;
+    const plantamount = req.body.plantamount;
+    const stage = req.body.stage;
+    
+    //console.log(opentime,closetime,lowertemp,highertemp,lowerhumid,higherhumid,lowerpH,higherpH,selectstage);
+    db.query("UPDATE farm SET farm_name=?,farm_location=?,plant_amount=?,farm_stage=?  WHERE id=?",
+    [farmname,location,plantamount,stage,id],(err,result)=>{
+        if(err){
+            console.log(err)
+        } else{
+            res.send(result);
+        }
+    })
+});
+
+app.delete('/deletefarm/:id', (req, res) => {
+    const id  = req.params.id;
+    console.log(id);
+    db.query("DELETE FROM farm WHERE id = ?",[id],(err,result)=>{
+        if(err){
+            console.log(err)
+        } else{
+            res.send(result);
+        }
+    })
+    
+});
+
 
 
 
