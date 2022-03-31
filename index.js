@@ -94,6 +94,23 @@ app.get('/plantname', (req,res)=>{
     });
 });
 
+app.get('/farmname', (req,res)=>{
+    const username = req.session.users.username;
+    const farm = []
+    db.query("SELECT * FROM farm WHERE username = ?",[username], (err,result) => {
+        if(err){
+            console.log(err);
+        } else {
+            console.log(result);
+            for (let index = 0; index < result.length; index++) {
+                farm.push(result[index].farm_name)
+            }
+            console.log(farm);
+            return res.send(farm);
+        }
+    });
+});
+
 app.post('/plantparameter', (req,res)=> {
     const plantname = req.body.plantname;
     const stage = req.body.stage;
