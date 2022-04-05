@@ -1,0 +1,31 @@
+name: Smartfarm-back Build Latest Image
+
+on:
+  push:
+    branches:
+      - "main"
+  pull_request:
+    branches:
+      - "main"
+
+env:
+  REGISTRY: ghcr.io
+  NAME: Jaytitaya 
+  IMAGE_TAG: ghcr.io/smartfarm/backend:latest
+  GITHUB_TOKEN: ${{secrets.ACTION_TOKEN}}
+
+jobs:
+  build-image:
+    timeout-minutes: 10
+    runs-on: ubuntu-lasted
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Build image
+        run: |
+          docker build -t ${IMAGE_TAG} .
+      - name: Push smartfarm backend Image
+        if: ${{ github.event_name == 'push' }}
+        run: |
+          echo ${GITHUB_TOKEN} | docker login ${REGISTRY} -u ${NAME} --password-stdin
+          docker push ${IMAGE_TAG}
