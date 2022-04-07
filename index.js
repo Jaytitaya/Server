@@ -320,6 +320,20 @@ app.delete('/deletefarm/:id', (req, res) => {
     
 });
 
+//ของชิน
+
+
+app.get('/getTemp/:farmname', (req,res)=>{
+    const farmname = req.params.farmname;
+    db.query("SELECT iot_temp FROM farm_iot WHERE iot_farmname = ? ORDER BY iot_datetime DESC LIMIT 1",[farmname], (err,result) => {
+        if(err){
+            console.log(err);
+        } else {
+            console.log(result);
+            res.send(result);
+        }
+    });
+});
 
 
 
