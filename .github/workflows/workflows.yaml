@@ -11,7 +11,7 @@ on:
 env:
   REGISTRY: ghcr.io
   NAME: Jaytitaya 
-  IMAGE_TAG: ghcr.io/smartfarm/backend:latest
+  IMAGE_TAG: ghcr.io/jaytitaya/backend:latest
   GITHUB_TOKEN: ${{secrets.ACTION_TOKEN}}
 
 jobs:
