@@ -10,12 +10,13 @@ const session = require("express-session");
 
 app.use(cors({
     origin: ["http://localhost:3000"],
-    methods: ["GET","POST"],
+    methods: ["GET","POST","DELETE","PUT"],
     credentials: true
 }));
 app.use(cookieParser());
 app.use(bodyParser.urlencoded({extended: true}));
 app.use(express.json());
+app.use( require('request-param')({ order: ["body","params","query"] } ) );
 
 app.use(
     session({
@@ -35,7 +36,7 @@ const db = mysql.createConnection({
     user: "smartfarm",
     host:"localhost",
     password: "Smartfarm12345",
-    database: "userSystem"
+    database: "smartfarm"
 })
 
 app.get('/users', (req,res)=>{
@@ -48,18 +49,340 @@ app.get('/users', (req,res)=>{
     });
 });
 
-app.get('/plants', (req,res)=>{
-    console.log("session", req.session.users)
+app.post('/plantregister', (req,res)=> {
+    const plantname = req.body.plantname;
+    const plantnameEng = req.body.plantnameEng;
+    const lifecycle = req.body.lifecycle;
+    const utilization = req.body.utilization;
     const username = req.session.users.username;
-    
+
+    db.query("SELECT * FROM plants WHERE username =? AND plants_name=?",[username,plantname],(err,result)=>{
+        if(err){
+            console.log(err);
+        }
+        if(result.length>0){
+            return res.send({message:"This plant was already recorded!"});
+        }else{
+        db.query("INSERT INTO plants(username,plants_name,plants_engname,plants_lifecycle,plants_utilization) VALUES(?,?,?,?,?)", 
+        [username,plantname,plantnameEng,lifecycle,utilization],
+        (err,result) => {
+            if(err){
+                console.log(err);
+            } else {
+            return res.send("Values inserted");
+            }
+        }
+    );
+    }
+    });  
+})
+
+app.get('/plantname', (req,res)=>{
+    const username = req.session.users.username;
+    const plant = []
     db.query("SELECT * FROM plants WHERE username = ?",[username], (err,result) => {
         if(err){
             console.log(err);
         } else {
+            console.log(result);
+            for (let index = 0; index < result.length; index++) {
+                plant.push(result[index].plants_name)
+            }
+            console.log(plant);
+            return res.send(plant);
+        }
+    });
+});
+
+app.get('/farmname', (req,res)=>{
+    const username = req.session.users.username;
+    const farm = []
+    db.query("SELECT * FROM farm WHERE username = ?",[username], (err,result) => {
+        if(err){
+            console.log(err);
+        } else {
+            console.log(result);
+            for (let index = 0; index < result.length; index++) {
+                farm.push(result[index].farm_name)
+            }
+            console.log(farm);
+            return res.send(farm);
+        }
+    });
+});
+
+app.post('/plantparameter', (req,res)=> {
+    const plantname = req.body.plantname;
+    const stage = req.body.stage;
+    const opentime = req.body.opentime;
+    const closetime = req.body.closetime;
+    const lowertemp = req.body.lowertemp;
+    const highertemp = req.body.highertemp;
+    const lowerhumid = req.body.lowerhumid;
+    const higherhumid = req.body.higherhumid;
+    const lowerpH = req.body.lowerpH;
+    const higherpH = req.body.higherpH;
+    console.log("create plant", req.session)
+    const username = req.session.users.username;
+    const ar = [];
+
+    db.query("SELECT * FROM plants_parameters WHERE username =? AND plantname=? AND stage=?",[username,plantname,stage],(err,result)=>{
+        if(err){
+            console.log(err);
+        }
+        if(result.length>0){
+            return res.send({message:"!This plant already has this stage recorded"});
+        }else{
+        db.query("INSERT INTO plants_parameters(username,plantname,stage,opentime,closetime,lowertemp,highertemp,lowerhumid,higherhumid,lowerpH,higherpH) VALUES(?,?,?,?,?,?,?,?,?,?,?)", 
+        [username,plantname,stage,opentime,closetime,lowertemp,highertemp,lowerhumid,higherhumid,lowerpH,higherpH],
+        (err,result) => {
+            if(err){
+                console.log(err);
+            } else {
+            return res.send("Values inserted");
+            }
+        }
+    );
+    }
+    });  
+})
+
+app.post('/farmregister', (req,res)=> {
+    const farmname = req.body.farmname;
+    const plantname = req.body.plantname;
+    const location = req.body.location;
+    const plantamount = req.body.plantamount;
+    const stage = req.body.stage;
+    const username = req.session.users.username;
+
+    db.query("SELECT * FROM farm WHERE username =? AND farm_name=?",[username,farmname],(err,result)=>{
+        if(err){
+            console.log(err);
+        }
+        if(result.length>0){
+            return res.send({message:"This farm was already recorded!"});
+        }else{
+        db.query("INSERT INTO farm(username,farm_name,farm_location,plant_amount,farm_plant,farm_stage) VALUES(?,?,?,?,?,?)", 
+        [username,farmname,location,plantamount,plantname,stage],
+        (err,result) => {
+            if(err){
+                console.log(err);
+            } else {
+            return res.send("Values inserted");
+            }
+        }
+    );
+    }
+    });  
+})
+
+app.post('/showparameter', (req,res)=>{
+    console.log("session", req.session.users)
+    const username = req.session.users.username;
+    const plantname = req.body.plantname;
+    db.query("SELECT * FROM plants_parameters WHERE username = ? AND plantname = ? ORDER BY CASE WHEN stage = 'seed' then 1 WHEN stage = 'veget' then 2 WHEN stage = 'flwr' then 3 WHEN stage = 'late' then 4 END ASC ",[username,plantname], (err,result) => {
+        if(err){
+            console.log(err);
+        } else {
+            //console.log(result);
             return res.send(result);
         }
     });
 });
+
+app.put('/updateparameter',(req, res)=>{
+    const id = req.body.id;
+    const plantname = req.body.plantname;
+    //const stage = req.body.stage;
+    const opentime = req.body.opentime;
+    const closetime = req.body.closetime;
+    const lowertemp = req.body.lowertemp;
+    const highertemp = req.body.highertemp;
+    const lowerhumid = req.body.lowerhumid;
+    const higherhumid = req.body.higherhumid;
+    const lowerpH = req.body.lowerpH;
+    const higherpH = req.body.higherpH;
+    //const selectstage = req.body.selectstage;
+    //console.log(opentime,closetime,lowertemp,highertemp,lowerhumid,higherhumid,lowerpH,higherpH,selectstage);
+    db.query("UPDATE plants_parameters SET opentime=?,closetime=?,lowertemp=?,highertemp=?,lowerhumid=?,higherhumid=?,lowerpH=?,higherpH=?  WHERE id=?",
+    [opentime,closetime,lowertemp,highertemp,lowerhumid,higherhumid,lowerpH,higherpH,id],(err,result)=>{
+        if(err){
+            console.log(err)
+        } else{
+            res.send(result);
+        }
+    })
+});
+
+app.delete('/deleteparameter/:id', (req, res) => {
+    const id  = req.params.id;
+    console.log(id);
+    db.query("DELETE FROM plants_parameters WHERE id = ?",[id],(err,result)=>{
+        if(err){
+            console.log(err)
+        } else{
+            res.send(result);
+        }
+    })
+    
+});
+
+app.post('/showplant', (req,res)=>{
+    console.log("session", req.session.users)
+    const username = req.session.users.username;
+    const plantname = req.body.plantname;
+    db.query("SELECT * FROM plants WHERE username = ? AND plants_name = ?",[username,plantname], (err,result) => {
+        if(err){
+            console.log(err);
+        } else {
+            console.log(result);
+            return res.send(result);
+
+        }
+    });
+});
+
+app.put('/updateplant',(req, res)=>{
+    const id = req.body.id;
+    const plantname = req.body.plantname;
+    //const stage = req.body.stage;
+    const plantnameEng = req.body.plantnameEng;
+    const lifecycle = req.body.lifecycle;
+    const utilization = req.body.utilization;
+    //const selectstage = req.body.selectstage;
+    //console.log(opentime,closetime,lowertemp,highertemp,lowerhumid,higherhumid,lowerpH,higherpH,selectstage);
+    db.query("UPDATE plants SET plants_engname=?,plants_lifecycle=?,plants_utilization=?  WHERE id=?",
+    [plantnameEng,lifecycle,utilization,id],(err,result)=>{
+        if(err){
+            console.log(err)
+        } else{
+            res.send(result);
+        }
+    })
+});
+
+app.delete('/deleteplant/:id', (req, res) => {
+    const id  = req.params.id;
+    console.log(id);
+    db.query("DELETE FROM plants WHERE id = ?",[id],(err,result)=>{
+        if(err){
+            console.log(err)
+        } else{
+            res.send(result);
+        }
+    })
+    
+});
+
+app.post('/showfarm', (req,res)=>{
+    console.log("session", req.session.users)
+    const username = req.session.users.username;
+    const plantname = req.body.plantname;
+    db.query("SELECT * FROM farm WHERE username = ? AND farm_plant = ?",[username,plantname], (err,result) => {
+        if(err){
+            console.log(err);
+        } else {
+            console.log(result);
+            return res.send(result);
+
+        }
+    });
+});
+
+app.put('/updatefarm',(req, res)=>{
+    const id = req.body.id;
+    const farmname = req.body.farmname;
+    const location = req.body.location;
+    const plantamount = req.body.plantamount;
+    const stage = req.body.stage;
+    
+    //console.log(opentime,closetime,lowertemp,highertemp,lowerhumid,higherhumid,lowerpH,higherpH,selectstage);
+    db.query("UPDATE farm SET farm_name=?,farm_location=?,plant_amount=?,farm_stage=?  WHERE id=?",
+    [farmname,location,plantamount,stage,id],(err,result)=>{
+        if(err){
+            console.log(err)
+        } else{
+            res.send(result);
+        }
+    })
+});
+
+app.delete('/deletefarm/:id', (req, res) => {
+    const id  = req.params.id;
+    console.log(id);
+    db.query("DELETE FROM farm WHERE id = ?",[id],(err,result)=>{
+        if(err){
+            console.log(err)
+        } else{
+            res.send(result);
+        }
+    })
+    
+});
+
+//ของชิน
+
+
+app.get('/getTemp/:farmname', (req,res)=>{
+    const farmname = req.params.farmname;
+    db.query("SELECT iot_temp FROM farm_iot WHERE iot_farmname = ? ORDER BY iot_datetime DESC LIMIT 1",[farmname], (err,result) => {
+        if(err){
+            console.log(err);
+        } else {
+            console.log(result);
+            res.send(result);
+        }
+    });
+});
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+//ของเก่า
+
+let plantlist = [];
+app.get('/plantlist', (req,res)=>{
+    db.query("SELECT * FROM plants", (err,result) => {
+        if(err){
+            console.log(err);
+        } else {
+            plantlist = result;
+            return res.send(plantlist);
+        }
+    });
+});
+
+app.get('/plants', (req,res)=>{
+    console.log("session", req.session.users)
+    const username = req.session.users.username;
+    const plant = []
+    db.query("SELECT * FROM plants WHERE username = ?",[username], (err,result) => {
+        if(err){
+            console.log(err);
+        } else {
+            console.log(result);
+            for (let index = 0; index < result.length; index++) {
+                plant.push(result[index].plantname)
+            }
+            let unique = [...new Set(plant)]
+            console.log(unique);
+            return res.send(unique);
+        }
+    });
+});
+
+
 
 app.post('/create', (req,res)=> {
     const firstname = req.body.firstname;
@@ -81,7 +404,7 @@ app.post('/create', (req,res)=> {
         } else {
             return res.send({message:"Register Successfully!"});
         }
-    }
+        }
 )};
 })
 
@@ -100,26 +423,62 @@ app.post('/create', (req,res)=> {
 app.post('/createplant', (req,res)=> {
     const plantname = req.body.plantname;
     const stage = req.body.stage;
-    const openclosetime = req.body.openclosetime;
+    const inputtime = req.body.inputtime;
+    const opentime = req.body.opentime;
+    const closetime = req.body.closetime;
     const lowertemp = req.body.lowertemp;
     const highertemp = req.body.highertemp;
     const lowerhumid = req.body.lowerhumid;
     const higherhumid = req.body.higherhumid;
     const lowerpH = req.body.lowerpH;
     const higherpH = req.body.higherpH;
+    const selectstage = req.body.selectstage;
     console.log("create plant", req.session)
     const username = req.session.users.username;
+    const ar = [];
 
-    db.query("INSERT INTO plants(username,plantname,stage,openclosetime,lowertemp,highertemp,lowerhumid,higherhumid,lowerpH,higherpH) VALUES(?,?,?,?,?,?,?,?,?,?)", 
-    [username,plantname,stage,openclosetime,lowertemp,highertemp,lowerhumid,higherhumid,lowerpH,higherpH],
-    (err,result) => {
+    db.query("SELECT * FROM plants WHERE username =? AND plantname=? AND stage=?",[username,plantname,stage],(err,result)=>{
         if(err){
             console.log(err);
-        } else {
-            return res.send("Values inserted");
         }
-    }
+        if(result.length>0){
+            return res.send({message:"!This plant already has this stage recorded"});
+        }else{
+        db.query("INSERT INTO plants(username,plantname,stage,opentime,closetime,lowertemp,highertemp,lowerhumid,higherhumid,lowerpH,higherpH,selectstage) VALUES(?,?,?,?,?,?,?,?,?,?,?,?)", 
+        [username,plantname,stage,opentime,closetime,lowertemp,highertemp,lowerhumid,higherhumid,lowerpH,higherpH,selectstage],
+        (err,result) => {
+            if(err){
+                console.log(err);
+            } else {
+            return res.send("Values inserted");
+            }
+        }
     );
+    }
+    });  
+
+    //for (let index = 0; index < inputtime.length; index++) {
+    //    const ar = [];
+    //    ar.push(inputtime[index])
+    //    db.query("INSERT INTO time(username,plantname,opentime,closetime) VALUES(?,?,?,?)", 
+    //    [username,plantname,ar.map(ar=>[ar.opentime]),ar.map(ar=>[ar.closetime])],
+    //    (err,result) => {
+    //    if(err){
+    //        console.log(err);
+    //    } 
+    //}
+    //);}
+
+    //db.query("INSERT INTO plants(opentime,closetime) VALUES?",
+    //[inputtime.map(inputtime=>[inputtime.opentime,inputtime.closetime])],
+    //(err,result) => {
+    //    if(err){
+    //        console.log(err);
+    //    } else {
+    //        return res.send("Values inserted");
+    //    }
+    //}
+    //);
 })
 
 app.get("/login",(req,res)=>{
