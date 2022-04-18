@@ -39,6 +39,17 @@ const db = mysql.createConnection({
     database: "smartfarm"
 })
 
+app.get('/session/:request', (req, res) => {
+    const request = req.params.request;
+    if (request === 'check'){
+        if ( req.session.users){ res.send({loggedIn:true, user: req.session.users})}
+        else { res.send({loggedIn: false})}
+    }
+    else if (request === 'clear'){
+        req.session.destroy();
+    }
+})
+
 app.get('/users', (req,res)=>{
     db.query("SELECT * FROM users", (err,result) => {
         if(err){
@@ -95,20 +106,21 @@ app.get('/plantname', (req,res)=>{
 });
 
 app.get('/farmname', (req,res)=>{
-    const username = req.session.users.username;
-    const farm = []
-    db.query("SELECT * FROM farm WHERE username = ?",[username], (err,result) => {
-        if(err){
-            console.log(err);
-        } else {
-            console.log(result);
-            for (let index = 0; index < result.length; index++) {
-                farm.push(result[index].farm_name)
+    if(req.session.users !== undefined){
+        const username = req.session.users.username;
+        const farm = []
+        db.query("SELECT * FROM farm WHERE username = ?",[username], (err,result) => {
+            if(err){console.log('error')}
+            else {
+                for (let index = 0; index < result.length; index++) {
+                    farm.push(result[index].farm_name)
+                }
+                //console.log(`Captain, this line was not suppose to show.`)
+                return res.status(200).send(farm);
             }
-            console.log(farm);
-            return res.send(farm);
-        }
-    });
+        });
+    }
+    else{res.status(400).send("fail")}
 });
 
 app.post('/plantparameter', (req,res)=> {
@@ -320,35 +332,6 @@ app.delete('/deletefarm/:id', (req, res) => {
     
 });
 
-//ของชิน
-
-
-app.get('/getTemp/:farmname', (req,res)=>{
-    const farmname = req.params.farmname;
-    db.query("SELECT iot_temp FROM farm_iot WHERE iot_farmname = ? ORDER BY iot_datetime DESC LIMIT 1",[farmname], (err,result) => {
-        if(err){
-            console.log(err);
-        } else {
-            console.log(result);
-            res.send(result);
-        }
-    });
-});
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 //ของเก่า
 
 let plantlist = [];
@@ -496,12 +479,12 @@ app.post('/login', (req,res)=> {
     [username,passwords],
     (err,result)=>{
         if(err){
-            console.log("a")
+            //console.log("a")
             return res.send({err: err});
         }
         if(result.length>0){
             req.session.users = result[0];
-            console.log("username ", req.session.users)
+            //console.log("username ", req.session.users)
              res.send(result);
         }else{
            return res.send({message:"! Invalid username or password."});
@@ -525,6 +508,99 @@ app.post('/login', (req,res)=> {
     //})
 })
 
+
+/* อัพเดตใหม่ 3/4/65 โค้ดส่วนแสดงค่า sensor, controller และส่วนกำหนดค่า controller */
+// get sensor parts
+
+app.get('/getSensorVal/:farmname/:sensor_type', (req,res)=>{
+    const farmname = req.params.farmname;
+    const sensor_type = req.params.sensor_type;
+    db.query(`SELECT iot_${sensor_type} FROM farm_iot WHERE iot_farmname = ? ORDER BY iot_datetime DESC LIMIT 1`,[farmname], (err,result) => {
+        if(err){
+            console.log(err);
+        } else {
+            console.log(result);
+            res.send(result);
+        }
+    });
+});
+
+app.get('/getRange/:plantname/:stage/:sensor_type', (req,res)=>{
+    const plantname = req.params.plantname;
+    const sensor_type = req.params.sensor_type;
+    const stage = req.params.stage;
+    db.query(`SELECT lower${sensor_type},higher${sensor_type} FROM plants_parameters WHERE plantname = ? AND stage = ?`,[plantname,stage], (err,result) => {
+        if(err){
+            console.log(err);
+        } else {
+            console.log(result);
+            res.send(result);
+        }
+    });
+});
+
+app.get('/getPlantname/:farmname', (req,res)=>{
+    const farmname = req.params.farmname;
+    db.query(`SELECT farm_plant,farm_stage FROM farm WHERE farm_name = ?`,[farmname], (err,result) => {
+        if(err){
+            console.log(err);
+        } else {
+            console.log(result);
+            res.send(result);
+        }
+    });
+});
+
+// get controller parts
+
+app.get('/getController/:farmname/:param', (req,res)=>{
+    const farmname = req.params.farmname;
+    const param = req.params.param;;
+    if (param === 'temp'){
+        db.query(`SELECT temp_MC,fan,heatlight FROM farm_controller WHERE iot_farmname = ?`,[farmname], (err,result) => {
+            if(err){
+                console.log(err);
+            } else {
+                console.log(result);
+                res.send(result);
+            }
+        });
+    }
+});
+
+// push controller parts
+
+app.put('/pushController/:farmname/:param', (req,res) => {
+    const farmname = req.params.farmname;
+    const param = req.params.param;
+    if (param === 'temp'){
+        const temp_MC = req.body.temp_MC;
+        const fan = req.body.fan;
+        const heatlight = req.body.heatlight;
+        if (temp_MC === 1){
+            db.query(`UPDATE farm_controller SET temp_MC =?, fan = ?, heatlight = ? WHERE iot_farmname = ?;`,[temp_MC, fan, heatlight,farmname], (err,result) => {
+                if(err){
+                    console.error(err);
+                } else {
+                    console.log(result);
+                    res.send({message:'Manual control update success !!'});
+                }
+            })
+        } else {
+            db.query(`UPDATE farm_controller SET temp_MC =? WHERE iot_farmname = ?;`,[temp_MC ,farmname], (err,result) => {
+                if(err){
+                    console.error(err);
+                } else {
+                    console.log(result);
+                    res.send({message:'Auto control update success !!'});
+                }
+            })
+        }
+    }
+})
+
+
+//
 app.listen('3001', () => {
     console.log('Server is running on port 3001');
 })
