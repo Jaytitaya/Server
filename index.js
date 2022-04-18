@@ -180,7 +180,7 @@ app.post('/showparameter', (req,res)=>{
     console.log("session", req.session.users)
     const username = req.session.users.username;
     const plantname = req.body.plantname;
-    db.query("SELECT * FROM plants_parameters WHERE username = ? AND plantname = ? ORDER BY CASE WHEN stage = 'seed' then 1 WHEN stage = 'veget' then 2 WHEN stage = 'flwr' then 3 WHEN stage = 'late' then 4 END ASC ",[username,plantname], (err,result) => {
+    db.query("SELECT * FROM plants_parameters WHERE username = ? AND plantname = ? ORDER BY CASE WHEN stage = 'seed' then 1 WHEN stage = 'veget' then 2 WHEN stage = 'flowr' then 3 WHEN stage = 'late' then 4 END ASC ",[username,plantname], (err,result) => {
         if(err){
             console.log(err);
         } else {
