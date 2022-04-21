@@ -42,8 +42,12 @@ const db = mysql.createConnection({
 app.get('/session/:request', (req, res) => {
     const request = req.params.request;
     if (request === 'check'){
-        if ( req.session.users){ res.send({loggedIn:true, user: req.session.users})}
-        else { res.send({loggedIn: false})}
+        if ( req.session.users){
+            console.log(req.session.users)
+            res.send({loggedIn:true, user: req.session.users})}
+        else { 
+            console.log("session not found, automatically log out.")
+            res.send({loggedIn: false})}
     }
     else if (request === 'clear'){
         req.session.destroy();
@@ -566,6 +570,36 @@ app.get('/getController/:farmname/:param', (req,res)=>{
             }
         });
     }
+    if (param === 'humid'){
+        db.query(`SELECT humid_MC,fan,fog FROM farm_controller WHERE iot_farmname = ?`,[farmname], (err,result) => {
+            if(err){
+                console.log(err);
+            } else {
+                console.log(result);
+                res.send(result);
+            }
+        });
+    }
+    if (param === 'ph'){
+        db.query(`SELECT pH_MC,phhigh,phlow FROM farm_controller WHERE iot_farmname = ?`,[farmname], (err,result) => {
+            if(err){
+                console.log(err);
+            } else {
+                console.log(result);
+                res.send(result);
+            }
+        });
+    }
+    if (param === 'light'){
+        db.query(`SELECT light_MC,light FROM farm_controller WHERE iot_farmname = ?`,[farmname], (err,result) => {
+            if(err){
+                console.log(err);
+            } else {
+                console.log(result);
+                res.send(result);
+            }
+        });
+    }
 });
 
 // push controller parts
@@ -577,13 +611,13 @@ app.put('/pushController/:farmname/:param', (req,res) => {
         const temp_MC = req.body.temp_MC;
         const fan = req.body.fan;
         const heatlight = req.body.heatlight;
-        if (temp_MC === 1){
+        if (temp_MC == 1){
             db.query(`UPDATE farm_controller SET temp_MC =?, fan = ?, heatlight = ? WHERE iot_farmname = ?;`,[temp_MC, fan, heatlight,farmname], (err,result) => {
                 if(err){
                     console.error(err);
                 } else {
                     console.log(result);
-                    res.send({message:'Manual control update success !!'});
+                    res.send({message:`Manual control update success !! \n${result.message.substring(1)}`});
                 }
             })
         } else {
@@ -592,7 +626,82 @@ app.put('/pushController/:farmname/:param', (req,res) => {
                     console.error(err);
                 } else {
                     console.log(result);
-                    res.send({message:'Auto control update success !!'});
+                    res.send({message:`Auto control update success !! \n${result.message.substring(1)}`});
+                }
+            })
+        }
+    }
+
+    if (param === 'humid'){
+        const humid_MC = req.body.humid_MC;
+        const fan = req.body.fan;
+        const fog = req.body.fog;
+        if (humid_MC == 1){
+            db.query(`UPDATE farm_controller SET humid_MC =?, fan = ?, fog = ? WHERE iot_farmname = ?;`,[humid_MC, fan, fog,farmname], (err,result) => {
+                if(err){
+                    console.error(err);
+                } else {
+                    console.log(result);
+                    res.send({message:`Manual control update success !! \n${result.message.substring(1)}`});
+                }
+            })
+        } else {
+            db.query(`UPDATE farm_controller SET humid_MC =? WHERE iot_farmname = ?;`,[humid_MC ,farmname], (err,result) => {
+                if(err){
+                    console.error(err);
+                } else {
+                    console.log(result);
+                    res.send({message:`Auto control update success !! \n${result.message.substring(1)}`});
+                }
+            })
+        }
+    }
+
+    if (param === 'ph'){
+        const ph_MC = req.body.ph_MC;
+        const phhigh = req.body.phhigh;
+        const phlow = req.body.phlow;
+        if (ph_MC == 1){
+            db.query(`UPDATE farm_controller SET pH_MC =?, phhigh = ?, phlow = ? WHERE iot_farmname = ?;`,[ph_MC, phhigh, phlow,farmname], (err,result) => {
+                if(err){
+                    console.error(err);
+                } else {
+                    console.log(result);
+                    res.send({message:`Manual control update success !! \n${result.message.substring(1)}`});
+                }
+            })
+        } else {
+            db.query(`UPDATE farm_controller SET pH_MC =? WHERE iot_farmname = ?;`,[ph_MC ,farmname], (err,result) => {
+                if(err){
+                    console.error(err);
+                } else {
+                    console.log(result);
+                    res.send({message:`Auto control update success !! \n${result.message.substring(1)}`});
+                }
+            })
+        }
+    }
+
+    if (param === 'light'){
+        const light_MC = req.body.light_MC;
+        const light = req.body.light_checked;
+        console.log(light);
+        if (light_MC == 1){
+            db.query(`UPDATE farm_controller SET light_MC =?, light = ? WHERE iot_farmname = ?;`,[light_MC, light,farmname], (err,result) => {
+                if(err){
+                    console.error(err);
+                } else {
+                    console.log(result);
+                    res.send({message:`Manual control update success !! \n${result.message.substring(1)}`});
+                }
+            })
+        } else {
+            db.query(`UPDATE farm_controller SET light_MC =? WHERE iot_farmname = ?;`,[light_MC ,farmname], (err,result) => {
+                if(err){
+                    console.error(err);
+                } else {
+                    console.log(result);
+                    res.send({message:`Auto control update success !! \n${result.message.substring(1)}`});
                 }
             })
         }
