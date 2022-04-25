@@ -5,13 +5,13 @@ WORKDIR /app
 COPY package.json ./
 
 RUN npm install
-
+RUN npm install request --save
 COPY . .
 
 FROM node:14-alpine
 
 COPY --from=builder /app .
 
-# EXPOSE 3000
+RUN npm install request --save
 
 CMD [ "npm", "run", "dev"  ]
