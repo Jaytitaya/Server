@@ -9,7 +9,7 @@ const cookieParser = require("cookie-parser");
 const session = require("express-session");
 
 app.use(cors({
-    origin: ["http://localhost:3000"],
+    origin: ["*"],
     methods: ["GET","POST","DELETE","PUT"],
     credentials: true
 }));
