@@ -12,4 +12,6 @@ COPY . .
 
 # COPY --from=builder /app .
 
+EXPOSE 3001
+
 CMD [ "npm", "run", "dev"  ]
