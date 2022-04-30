@@ -8,11 +8,7 @@ const bodyParser = require("body-parser");
 const cookieParser = require("cookie-parser");
 const session = require("express-session");
 
-app.use(cors({
-    origin: ["*"],
-    methods: ["GET","POST","DELETE","PUT"],
-    credentials: true
-}));
+app.use(cors({credentials: true, origin: true}));
 app.use(cookieParser());
 app.use(bodyParser.urlencoded({extended: true}));
 app.use(express.json());
