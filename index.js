@@ -35,7 +35,7 @@ app.use(
 
 const db = mysql.createConnection({
     user: "root",
-    host:"localhost",
+    host:"139.162.39.94",
     password: "root",
     database: "smartfarm"
 })
