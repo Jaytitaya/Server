@@ -33,12 +33,12 @@ app.use(
 
 
 
-const db = mysql.createConnection({
+const db = mysql.createPool({
     user: "root",
     host:"139.162.39.94",
     password: "root",
     database: "smartfarm"
-})
+},{debug: true});
 
 app.get('/session/:request', (req, res) => {
     const request = req.params.request;
