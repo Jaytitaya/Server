@@ -96,7 +96,7 @@ app.post('/plantregister', (req,res)=> {
 app.get('/plantname', (req,res)=>{
     const username = req.session.users.username;
     const plant = []
-    db.query("SELECT * FROM plants WHERE username = ?",[username], (err,result) => {
+    db.query("SELECT * FROM plants ", (err,result) => {
         if(err){
             console.log(err);
         } else {
@@ -248,7 +248,7 @@ app.post('/showplant', (req,res)=>{
     console.log("session", req.session.users)
     const username = req.session.users.username;
     const plantname = req.body.plantname;
-    db.query("SELECT * FROM plants WHERE username = ? AND plants_name = ?",[username,plantname], (err,result) => {
+    db.query("SELECT * FROM plants WHERE plants_name = ?",[plantname], (err,result) => {
         if(err){
             console.log(err);
         } else {
