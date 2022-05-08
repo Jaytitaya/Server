@@ -177,7 +177,7 @@ app.post('/farmregister', (req,res)=> {
             console.log(err);
         }
         if(result.length>0){
-            return res.send({message:"This farm was already recorded!"});
+            return res.send({message:"This farm name was used!"});
         }else{
         db.query("INSERT INTO farm(username,farm_name,farm_location,plant_amount,farm_plant,farm_stage) VALUES(?,?,?,?,?,?)", 
         [username,farmname,location,plantamount,plantname,stage],
