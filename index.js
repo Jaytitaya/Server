@@ -72,7 +72,7 @@ app.post('/plantregister', (req,res)=> {
     const utilization = req.body.utilization;
     const username = req.session.users.username;
 
-    db.query("SELECT * FROM plants WHERE username =? AND plants_name=?",[username,plantname],(err,result)=>{
+    db.query("SELECT * FROM plants WHERE  plants_name=?",[plantname],(err,result)=>{
         if(err){
             console.log(err);
         }
@@ -172,7 +172,7 @@ app.post('/farmregister', (req,res)=> {
     const stage = req.body.stage;
     const username = req.session.users.username;
 
-    db.query("SELECT * FROM farm WHERE username =? AND farm_name=?",[username,farmname],(err,result)=>{
+    db.query("SELECT * FROM farm WHERE farm_name=?",[farmname],(err,result)=>{
         if(err){
             console.log(err);
         }
