@@ -523,6 +523,10 @@ app.get('/getSensorVal/:farmname/:sensor_type', (req,res)=>{
     db.query(`SELECT iot_${sensor_type} FROM farm_iot WHERE iot_farmname = ? ORDER BY iot_datetime DESC LIMIT 1`,[farmname], (err,result) => {
         if(err){
             console.log(err);
+        }if(result.length===0){
+            result = [{iot_temp: 0,iot_humid: 0,iot_ph: 0 }]
+            res.send(result)
+            console.log(result);
         } else {
             console.log(result);
             res.send(result);
