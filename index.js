@@ -96,7 +96,7 @@ app.post('/plantregister', (req,res)=> {
 app.get('/plantname', (req,res)=>{
     const username = req.session.users.username;
     const plant = []
-    db.query("SELECT * FROM plants ", (err,result) => {
+    db.query("SELECT * FROM plants ORDER BY CONVERT( plants_name USING tis620) ASC ", (err,result) => {
         if(err){
             console.log(err);
         } else {
