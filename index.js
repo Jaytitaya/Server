@@ -114,7 +114,7 @@ app.get('/farmname', (req,res)=>{
     if(req.session.users !== undefined){
         const username = req.session.users.username;
         const farm = []
-        db.query("SELECT * FROM farm WHERE username = ?",[username], (err,result) => {
+        db.query("SELECT * FROM farm WHERE username = ? ORDER BY CONVERT( farm_name USING tis620) ASC",[username], (err,result) => {
             if(err){console.log('error')}
             else {
                 for (let index = 0; index < result.length; index++) {
